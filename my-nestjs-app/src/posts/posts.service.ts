@@ -29,7 +29,7 @@ export class PostsService {
      findOne(id:number): Post | string{
           const post = this.posts.find(post=> post.id === id);
           if(!post){
-            return 'Post not Found'
+           throw new NotFoundException(`Post with ID ${id} is not found`)
           }
 
           return post;
