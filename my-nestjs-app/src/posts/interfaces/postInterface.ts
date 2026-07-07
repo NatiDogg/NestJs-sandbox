@@ -7,3 +7,5 @@ export interface Post{
     createdAt: Date;
     updatedAt?: Date;
 }
+
+

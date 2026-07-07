@@ -10,7 +10,7 @@ async function bootstrap() {
       whitelist: true, //strips properties that are not defined in our DTO's
       forbidNonWhitelisted: true, // more strict than whitelist it immediately halts the request if extra properties detected
       transform: true,
-      disableErrorMessages: true
+      disableErrorMessages: false
 
      })
   )
