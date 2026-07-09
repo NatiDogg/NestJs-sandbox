@@ -1,80 +1,47 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Post } from './interfaces/postInterface';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreatePostDto } from './dto/createPostDto';
+import { Post } from 'prisma/generated/prisma/client';
+
 
 @Injectable()
 export class PostsService {
 
-     private posts:Post[] = [
-        {
-            id: 1,
-            title: "First",
-            content: "First Post content",
-            author: "Nati",
-            createdAt: new Date()
-        },
-         {
-            id: 2,
-            title: "Second",
-            content: "Second Post content",
-            author: "Abebe",
-            createdAt: new Date()
-        }
-     ]
+    constructor(private prisma:PrismaService){}
 
+    async findAll():Promise<Post[]>{
+        return await this.prisma.post.findMany()
+    }
 
-     findAll():Post[]{
-         return this.posts;
-     }
+    async findOne(id: string):Promise<Post>{
+        const post = await this.prisma.post.findUnique({where: {
+            id
+        }})
 
-     findOne(id:number): Post | string{
-          const post = this.posts.find(post=> post.id === id);
-          if(!post){
-           throw new NotFoundException(`Post with ID ${id} is not found`)
-          }
-
-          return post;
-     }
-
-     create(postDetails: Omit<Post, 'id' | 'createdAt'>): Post{
-        const newPost:Post = {
-            id: this.posts.length + 1,
-            ...postDetails,
-            createdAt: new Date()
-
-        }
-        this.posts.push(newPost);
-
-        return newPost;
-
-
-     }
-
-     update(id: number, updateDetails: Partial<Omit<Post, 'id' | 'createdAt'>> ):Post{
-        const postIndex = this.posts.findIndex(post=> post.id === id);
-        if(postIndex === -1){
-            throw new NotFoundException("Post not Found to Update")
+        if(!post){
+            throw new NotFoundException(`Post with ID ${id} not found`)
         }
 
-        this.posts[postIndex] = {
-             ...this.posts[postIndex],
-             ...updateDetails,
-             updatedAt: new Date ()
+        return post
+    }
+
+    async create(createPostDetails:CreatePostDto): Promise<Post>{
+        try {
+           return await this.prisma.post.create({data:{
+            title: createPostDetails.title,
+            content: createPostDetails.content,
+            author: createPostDetails.author
+
+        }})
+        } catch (error) {
+            throw error
         }
+    }
 
-        return this.posts[postIndex]
 
-     }
+     
 
-     delete(id:number): string{
-        const postIndex = this.posts.findIndex(post=> post.id === id);
-
-        if(postIndex === -1){
-            throw new NotFoundException("Post not Found to be Deleted")
-        }
-        this.posts.splice(postIndex,1);
-        return 'Post Deleted Successfully'
-
-     }
 
 
 
