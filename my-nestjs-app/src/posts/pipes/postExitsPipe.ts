@@ -7,13 +7,9 @@ export class PostExitsPipe implements PipeTransform{
    
            constructor(private readonly postsService:PostsService){}
 
-           transform(value: any, metadata: ArgumentMetadata) {
-               try {
-                  this.postsService.findOne(value)
-                  return value;
-               } catch (error) {
-                 throw new NotFoundException(`Post with ID ${value} not found`)
-               }
+           async transform(value: any, metadata: ArgumentMetadata) {
+               await this.postsService.findOne(value)
+               return value;
            }
 
                  

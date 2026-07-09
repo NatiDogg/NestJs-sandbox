@@ -1,6 +1,6 @@
-import { Controller,Get,Param,ParseIntPipe,Query,Post, HttpCode, HttpStatus, Body, Patch, Delete } from '@nestjs/common';
+import { Controller,Get,Param,Post, HttpCode, HttpStatus, Body, Patch, Delete } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import type { Post as PostInterface } from './interfaces/postInterface';
+
 import { CreatePostDto } from './dto/createPostDto';
 import { UpdatePostDto } from './dto/updatePostDto';
 import { PostExitsPipe } from './pipes/postExitsPipe';
@@ -10,38 +10,31 @@ export class PostsController {
 
     constructor(private readonly postsService:PostsService){}
 
-
-    @Get()
-    findAll(@Query("search") search?: string):PostInterface[]{
-        const extractAllPosts = this.postsService.findAll()
-
-        if(search){
-           return extractAllPosts.filter(posts=> posts.title.toLowerCase().includes(search.toLowerCase()));
-           
-        }
-
-        return extractAllPosts;
+    @Get('/')
+    async findAll(){
+         return await this.postsService.findAll()
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe,PostExitsPipe) id: number):PostInterface | string  {
-        return this.postsService.findOne(id);
+    async findOne(@Param('id', PostExitsPipe) id: string){
+          return await this.postsService.findOne(id);
+    }
+    @Post()
+    async create(@Body() createPostDeatils: CreatePostDto){
+          return await this.postsService.create(createPostDeatils)
+    }
+    @Patch(':id')
+    async update(@Param('id', PostExitsPipe) id: string, @Body() updatePostDetails:UpdatePostDto){
+
+        return await this.postsService.update(id,updatePostDetails)
+
+    }
+    @Delete(':id')
+    async delete(@Param("id", PostExitsPipe) id: string){
+        return await this.postsService.delete(id)
     }
 
-    @Post('create')
-    @HttpCode(HttpStatus.CREATED)
-    create( @Body() postDetails: CreatePostDto):PostInterface{
-         return this.postsService.create(postDetails)
-    }
 
-    @Patch('/update/:id')
-    update(@Param('id', ParseIntPipe,PostExitsPipe) id: number, @Body() updateDetails: UpdatePostDto):PostInterface{
-         return this.postsService.update(id, updateDetails);
-    }
-    @Delete('delete/:id')
-    delete(@Param('id', ParseIntPipe,PostExitsPipe) id: number):string{
-         return this.postsService.delete(id)
-    }
 
 
 }
