@@ -1,30 +1,24 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
-export class UpdatePostDto{
+export class UpdatePostDto {
+  @IsOptional()
+  @IsNotEmpty({ message: 'Title is required' })
+  @IsString({ message: 'Title must be a string' })
+  @MinLength(3, { message: "Title must be at least 3 characters long" })
+  @MaxLength(50, { message: "Title can not be longer than 50 characters" })
+  title?: string;
 
-    @IsOptional()
-    
-    @IsString({message: "Title must be a string"})
-    @MinLength(3, {message: "Title must be at least 4 characters long"})
-    @MaxLength(50, {message: "Title can not be longer than 50 characters"})
-    title?: string;
+  @IsOptional()
+  @IsNotEmpty({ message: 'Content is required' })
+  @IsString({ message: 'Content must be a string' })
+  @MinLength(5, { message: "Content must be at least 5 characters long" })
+  @MaxLength(100, { message: "Content can not be longer than 100 characters" })
+  content?: string;
 
-      @IsOptional()
-   
-     @IsString({message: "Content must be a string"})
-     @MinLength(4, {message: "Content must be at least 4 characters long"})
-      
-
-      content?: string;
-
-
-       @IsOptional()
-       
-     @IsString({message: "Author must be a string"})
-     @MinLength(4, {message: "Author must be at least 4 characters long"})
-      @MaxLength(10, {message: "Author can not be longer than 10 characters"})
-
-      author?: string
-
-
+  @IsOptional()
+  @IsNotEmpty({ message: 'Author is required' })
+  @IsString({ message: 'Author must be a string' })
+  @MinLength(2, { message: "Author must be at least 2 characters long" })
+  @MaxLength(25, { message: "Author can not be longer than 25 characters" })
+  author?: string;
 }

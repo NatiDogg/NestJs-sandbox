@@ -1,23 +1,17 @@
-import {  ArgumentMetadata, Injectable, NotFoundException, PipeTransform } from "@nestjs/common";
+import { ArgumentMetadata, Injectable, PipeTransform } from "@nestjs/common";
 import { PostsService } from "../posts.service";
 
-
 @Injectable()
-export class PostExitsPipe implements PipeTransform{ 
-   
-           constructor(private readonly postsService:PostsService){}
+export class PostExitsPipe implements PipeTransform {
+  constructor(private readonly postsService: PostsService) {}
 
-           transform(value: any, metadata: ArgumentMetadata) {
-               try {
-                  this.postsService.findOne(value)
-                  return value;
-               } catch (error) {
-                 throw new NotFoundException(`Post with ID ${value} not found`)
-               }
-           }
+  async transform(value: any, metadata: ArgumentMetadata) {
+    await this.postsService.findOne(value);
+    return value;
+  }
+}
 
                  
 
 
     
-}

@@ -5,6 +5,7 @@ import { HelloModule } from './hello/hello.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { PostsModule } from './posts/posts.module';
+import { PrismaModule } from './prisma/prisma.module';
 import * as joi from 'joi'
 @Module({
 
@@ -12,10 +13,11 @@ import * as joi from 'joi'
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
-        APP_NAME: joi.string().min(4)
+        APP_NAME: joi.string().min(4),
+        DATABASE_URL: joi.string().min(5)
       })
     }),
-    HelloModule, UserModule, PostsModule],
+    HelloModule, UserModule, PostsModule, PrismaModule],
   controllers: [AppController],
   providers: [AppService],
 })

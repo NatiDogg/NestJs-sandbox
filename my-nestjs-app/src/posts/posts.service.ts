@@ -1,86 +1,74 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Post } from './interfaces/postInterface';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreatePostDto } from './dto/createPostDto';
+import { Post, Prisma } from 'prisma/generated/prisma/client';
+import { UpdatePostDto } from './dto/updatePostDto';
 
 @Injectable()
 export class PostsService {
+  constructor(private prisma: PrismaService) {}
 
-     private posts:Post[] = [
-        {
-            id: 1,
-            title: "First",
-            content: "First Post content",
-            author: "Nati",
-            createdAt: new Date()
+  async findAll(): Promise<Post[]> {
+    return await this.prisma.post.findMany();
+  }
+
+  async findOne(id: string): Promise<Post> {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
+  }
+
+  async create(createPostDetails: CreatePostDto): Promise<Post> {
+    try {
+      return await this.prisma.post.create({
+        data: {
+          title: createPostDetails.title,
+          content: createPostDetails.content,
+          author: createPostDetails.author,
         },
-         {
-            id: 2,
-            title: "Second",
-            content: "Second Post content",
-            author: "Abebe",
-            createdAt: new Date()
-        }
-     ]
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 
+  async update(id: string, updatePostDetails: UpdatePostDto): Promise<Post> {
+    const post = await this.prisma.post.update({
+      where: { id },
+      data: {
+        ...updatePostDetails,
+        updatedAt: new Date(),
+      },
+    });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
+  }
 
-     findAll():Post[]{
-         return this.posts;
-     }
-
-     findOne(id:number): Post | string{
-          const post = this.posts.find(post=> post.id === id);
-          if(!post){
-            throw new NotFoundException("Post Not Found")
-          }
-
-          return post;
-     }
-
-     create(postDetails: Omit<Post, 'id' | 'createdAt'>): Post{
-        const newPost:Post = {
-            id: this.posts.length + 1,
-            ...postDetails,
-            createdAt: new Date()
-
-        }
-        this.posts.push(newPost);
-
-        return newPost;
-
-
-     }
-
-     update(id: number, updateDetails: Partial<Omit<Post, 'id' | 'createdAt'>> ):Post{
-        const postIndex = this.posts.findIndex(post=> post.id === id);
-        if(postIndex === -1){
-            throw new NotFoundException("Post not Found to Update")
-        }
-
-        this.posts[postIndex] = {
-             ...this.posts[postIndex],
-             ...updateDetails,
-             updatedAt: new Date ()
-        }
-
-        return this.posts[postIndex]
-
-     }
-
-     delete(id:number): string{
-        const postIndex = this.posts.findIndex(post=> post.id === id);
-
-        if(postIndex === -1){
-            throw new NotFoundException("Post not Found to be Deleted")
-        }
-        this.posts.splice(postIndex,1);
-        return 'Post Deleted Successfully'
-
-     }
-
-
-
-
-
-
-
-
+  async delete(id: string) {
+    try {
+      await this.prisma.post.delete({ where: { id } });
+      return { message: 'Post deleted successfully' };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new NotFoundException(`Post with ID ${id} not found`);
+      }
+      throw error;
+    }
+  }
 }
+
+
+     
+
+
+
+
+
+
+
+
+
