@@ -1,44 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { HelloService } from 'src/hello/hello.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma,User } from 'prisma/generated/prisma/client';
 
 @Injectable()
 export class UserService {
 
-    constructor(private readonly helloService:HelloService){}
+    constructor(
+       private readonly helloService:HelloService,
+       private readonly prisma:PrismaService
+     
+    ){}
 
+    async createUser(userDetails: {name: string, email: string, password: string}): Promise<Omit<User, 'password'>>{
+          try {
+             const newlyCreatedUser = await this.prisma.user.create({data:{
+             ...userDetails
 
-    getAllUsers(){
-        return [
-            {
-                id: 1,
-                name: 'Sangam'
-            },
-            {
-                id: 2,
-                name: 'Nati'
-            },
-            {
-                id: 3,
-                name: 'Bob'
-            }
-        ]
+         }, omit: {password: true}})
+           return newlyCreatedUser;
+
+          } catch (error) {
+              if(error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002' ){
+                throw new BadRequestException("Email already in use")
+              }
+              throw error;
+          }
+
+         
+    }
+    async getAllUsers(): Promise<User[]>{
+        return await this.prisma.user.findMany()
     }
 
-    getUserById(id:number){
-        const user = this.getAllUsers().find(u=> u.id === id);
-
-        return user
+    async findByEmail(email: string): Promise<User | null>{
+         return await this.prisma.user.findUnique({where:{
+            email: email
+         }})
     }
 
-    getWelcomeMessage(userId: number){
-         const user = this.getAllUsers().find(u=> u.id === userId);
+    
 
-         if(!user){
-            return 'User not Found'
-         }
-
-         return this.helloService.getHelloWithName(user.name)
-    }
+    
    
 
 }
