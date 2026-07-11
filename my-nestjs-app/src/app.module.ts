@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 import * as joi from 'joi'
 @Module({
 
@@ -17,7 +18,7 @@ import * as joi from 'joi'
         DATABASE_URL: joi.string().min(5)
       })
     }),
-    HelloModule, UserModule, PostsModule, PrismaModule],
+    HelloModule, UserModule, PostsModule, PrismaModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
