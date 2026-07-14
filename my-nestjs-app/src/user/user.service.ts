@@ -55,6 +55,11 @@ export class UserService {
             email: email
          }})
     }
+    async findUserById(id:string):Promise<User | null>{
+         return await this.prisma.user.findUnique({where:{
+            id
+         }})
+    }
 
     
 

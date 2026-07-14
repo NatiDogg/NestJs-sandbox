@@ -66,6 +66,18 @@ export class AuthService {
 
 
     }
+    async refreshToken(token: string){
+        try {
+            const payload = this.tokenService.verifyRefreshToken(token)
+            const user = await this.userService.findUserById(payload.id)
+            if(!user){
+                 throw new UnauthorizedException("Invalid Token")
+            }
+            return this.generateResponseToken(user,'refresh token updated')
+        } catch (error) {
+            throw new UnauthorizedException("Invalid Token")
+        }
+    }
 
     private generateResponseToken(user:Omit<User,'password'>, message: string){
         
