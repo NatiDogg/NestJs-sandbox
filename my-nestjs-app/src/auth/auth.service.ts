@@ -5,11 +5,12 @@ import { UserService } from 'src/user/user.service';
 import {hashPassword,matchPassword} from '../utils/bcryptjs'
 import { LoginDto } from './dto/loginDto';
 import { User } from 'prisma/generated/prisma/client';
+import { TokenService } from 'src/utils/jwt';
 
 @Injectable()
 export class AuthService {
 
-      constructor(private readonly userService:UserService){}
+      constructor(private readonly userService:UserService, private readonly tokenService:TokenService){}
     async register(userInfo:RegisterDto){
         const normalizedEmail = userInfo.email.toLowerCase()
         const hashedPassword = await hashPassword(userInfo.password)
@@ -66,8 +67,17 @@ export class AuthService {
 
     }
 
-    private generateResponseToken(user:Omit<User, 'password'>, message: string){
-          
+    private generateResponseToken(user:Omit<User,'password'>, message: string){
+        
+           const accessToken = this.tokenService.createAccessToken(user)
+           const refreshToken = this.tokenService.createRefreshToken(user)
+
+           return {
+            user: user,
+            message: message,
+            accessToken: accessToken,
+            refreshToken: refreshToken
+           }
     }
 
 
