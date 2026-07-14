@@ -29,6 +29,23 @@ export class UserService {
 
          
     }
+    async createAdmin(adminDetails:{name: string, email: string, password: string}): Promise<Omit<User, "password">>{
+
+        try {
+            const newlyCreatedAdmin = await this.prisma.user.create({data:{
+                 ...adminDetails,
+                 role: 'ADMIN'
+            }, omit: {password: true}})
+            return newlyCreatedAdmin
+
+        } catch (error) {
+             if(error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002"){
+                throw new BadRequestException("Email already in use")
+             }
+              throw error;
+        }
+
+    }
     async getAllUsers(): Promise<User[]>{
         return await this.prisma.user.findMany()
     }

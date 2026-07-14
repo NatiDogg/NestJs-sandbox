@@ -4,6 +4,8 @@ import { RegisterDto } from './dto/registerDto';
 import { UserService } from 'src/user/user.service';
 import {hashPassword,matchPassword} from '../utils/bcryptjs'
 import { LoginDto } from './dto/loginDto';
+import { User } from 'prisma/generated/prisma/client';
+
 @Injectable()
 export class AuthService {
 
@@ -24,6 +26,21 @@ export class AuthService {
          }
 
     }
+
+    async createAdmin(adminInfo: RegisterDto){
+            const normalizedEmail = adminInfo.email.toLowerCase()
+            const hashedPassword = await hashPassword(adminInfo.password);
+
+            const createdAdmin = await this.userService.createAdmin({
+                name: adminInfo.name,
+                email: normalizedEmail,
+                password: hashedPassword
+            })
+            return {
+                user: createdAdmin,
+                message: "Admin Created Successfully"
+            }
+    }
     async login(userInfo: LoginDto){
         const normalizedEmail = userInfo.email.toLowerCase()
         const existingUser = await this.userService.findByEmail(normalizedEmail)
@@ -36,16 +53,21 @@ export class AuthService {
         if(!comparePassword){
             throw new UnauthorizedException("Invalid Credentials!")
         }
+
+        
          
         const {password, ...safeUser} = existingUser
 
-          return {
-            user: safeUser,
-            message: 'User LoggedIn Successfully'
-          }
+
+
+           return this.generateResponseToken(safeUser,'User LoggedIn Successfully')
         
 
 
+    }
+
+    private generateResponseToken(user:Omit<User, 'password'>, message: string){
+          
     }
 
 

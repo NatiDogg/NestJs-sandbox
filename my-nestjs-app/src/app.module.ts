@@ -7,16 +7,13 @@ import { ConfigModule } from '@nestjs/config';
 import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import * as joi from 'joi'
+import { validate } from './utils/envValidation';
 @Module({
 
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: joi.object({
-        APP_NAME: joi.string().min(4),
-        DATABASE_URL: joi.string().min(5)
-      })
+      validate
     }),
     HelloModule, UserModule, PostsModule, PrismaModule, AuthModule],
   controllers: [AppController],
