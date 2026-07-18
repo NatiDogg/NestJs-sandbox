@@ -47,7 +47,7 @@ export class UserService {
 
     }
     async getAllUsers(): Promise<User[]>{
-        return await this.prisma.user.findMany()
+        return await this.prisma.user.findMany({include:{posts: true}})
     }
 
     async findByEmail(email: string): Promise<User | null>{
