@@ -34,9 +34,9 @@ export class AuthController {
 
      @UseGuards(JwtAuthGuard)
      @Get('me')
-     async getProfile(@CurrentUser() user:Omit<User, 'password'>):Promise<Omit<User, 'password'>>{
-        return user
+     async getProfile(@CurrentUser() user:Omit<User, 'password'>):Promise<{user: Omit<User,'password'>}>{
+        return {user: user}
      }
 
-
+  
 }
