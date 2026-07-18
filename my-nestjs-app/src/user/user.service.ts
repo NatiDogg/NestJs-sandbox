@@ -55,10 +55,10 @@ export class UserService {
             email: email
          }})
     }
-    async findUserById(id:string):Promise<User | null>{
+    async findUserById(id:string):Promise<Omit<User,"password"> | null>{
          return await this.prisma.user.findUnique({where:{
             id
-         }})
+         },omit:{password: true} })
     }
 
     
